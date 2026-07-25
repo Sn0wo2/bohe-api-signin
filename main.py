@@ -1,6 +1,6 @@
 import asyncio
 import random
-import sys
+from dataclasses import dataclass
 
 from client import BoheClient
 from store.token import load_accounts
@@ -9,7 +9,18 @@ from utils.logger import setup_logger
 logger = setup_logger()
 
 
-async def main():
+@dataclass(frozen=True)
+class RunResult:
+    success: bool
+    summary: str
+    details: str = ""
+
+    @property
+    def exit_code(self) -> int:
+        return 0 if self.success else 1
+
+
+async def main() -> RunResult:
     accounts = load_accounts()
     logger.info(f"Loaded {len(accounts)} account(s)")
 
@@ -39,9 +50,15 @@ async def main():
         logger.warning(
             f"Failed accounts: {', '.join(f'account{idx + 1}' for idx in failed)}"
         )
-    if not succeeded:
-        sys.exit(1)
+
+    summary = f"✅{len(succeeded)} ❌{len(failed)}"
+    details = f"Done: {len(succeeded)} succeeded, {len(failed)} failed"
+    if failed:
+        details += f"\nFailed accounts: {', '.join(f'account{idx + 1}' for idx in failed)}"
+
+    # success if at least one account succeeded (preserves prior exit-code semantics)
+    return RunResult(len(succeeded) > 0, summary, details)
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    raise SystemExit(asyncio.run(main()).exit_code)

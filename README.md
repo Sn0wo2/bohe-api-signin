@@ -78,3 +78,39 @@ migrate:
 
 * **Environment / CI** — set `BOHE_ACCOUNTS` to a JSON array of `{"bohe_session_cookies": "..."}` objects and remove
   the old `LINUX_DO_TOKEN` / `LINUX_DO_CONNECT_TOKEN` secrets.
+
+---
+
+## QingLong Panel Integration
+
+The script `ql_bohe_signin.py` at the repository root is auto-discovered by QingLong via its `cron` / `new Env` header. No manual task configuration is needed beyond subscribing to the repo.
+
+### Setup
+
+1. **Python dependencies** — add these in QingLong under *Dependency Management → Python3*:
+   ```
+   curl-cffi
+   pydantic
+   ```
+
+2. **Environment variable** — set `BOHE_ACCOUNTS` in QingLong's *Environment Variables*:
+   ```
+   [{"bohe_session_cookies":"your_auth_token_value"}]
+   ```
+   Append more objects for multiple accounts. Update the cookie manually when the session expires.
+
+3. **Subscribe to the repo** — in QingLong's *Subscription Management*:
+   - Name: `bohe-api-signin`
+   - Repository: your repo URL
+   - Branch: `main`
+   - Schedule: leave empty (declared by the script header `cron: 0 0 * * *`)
+   - File suffix: `py`
+
+4. **Notifications** — configure push channels in QingLong's *Notification Settings*. The script pushes via `QLAPI.systemNotify` and automatically reuses all configured channels.
+
+### Notes
+
+- The script `chdir`s to the project root at startup, so relative paths (e.g. `./.data`) work regardless of how QingLong launches the task.
+- `BOHE_DATA_DIR` (optional) overrides the data directory (default `./.data`).
+- `LOG_LEVEL` (optional) sets the log level (default `INFO`).
+- Outside QingLong, running `python main.py` directly works the same way minus the notification push.
