@@ -54,31 +54,6 @@ BOHE_ACCOUNTS='[{"bohe_session_cookies":"xxxx"},{"bohe_session_cookies":"yyyy"}]
 Accounts are processed sequentially (with a short randomized delay between them) to stay within the shared Bohe rate
 limits.
 
-### Account storage
-
-The roster has exactly two sources, in priority order:
-
-1. The `BOHE_ACCOUNTS` JSON env var / secret.
-2. The `accounts` array in `.data/token.json`.
-
-If nothing is configured, the program scaffolds an empty `accounts` array in `.data/token.json` for you to fill in.
-Tokens are **not** written back after a run — update `.data/token.json` / the `BOHE_ACCOUNTS` secret manually when a
-session expires.
-
-### Migration from the OAuth version
-
-The legacy `linux_do_token` / `linux_do_connect_token` fields are ignored (configs carrying them still parse). To
-migrate:
-
-* **Local `.data/token.json`** — replace the account entries with just `bohe_session_cookies`:
-
-  ```json
-  { "accounts": [ { "bohe_session_cookies": "..." } ] }
-  ```
-
-* **Environment / CI** — set `BOHE_ACCOUNTS` to a JSON array of `{"bohe_session_cookies": "..."}` objects and remove
-  the old `LINUX_DO_TOKEN` / `LINUX_DO_CONNECT_TOKEN` secrets.
-
 ---
 
 ## QingLong Panel Integration

@@ -1,9 +1,12 @@
 import json
+import logging
 import os
-from venv import logger
+
 from pydantic import BaseModel, Field, TypeAdapter, ValidationError
 
 from utils.paths import DATA_DIR
+
+logger = logging.getLogger("bohe-api-signin")
 
 TOKEN_FILE = os.path.join(DATA_DIR, "token.json")
 
@@ -54,15 +57,6 @@ def _load_accounts_from_file() -> list[Account]:
     return _parse_roster(raw.get("accounts"))
 
 
-def _write_accounts_to_file(accounts: list[Account]) -> None:
-    os.makedirs(os.path.dirname(TOKEN_FILE) or ".", exist_ok=True)
-
-    payload = {"accounts": [account.model_dump() for account in accounts]}
-
-    with open(TOKEN_FILE, "w", encoding="utf-8") as f:
-        json.dump(payload, f, indent=4, ensure_ascii=False)
-
-
 def load_accounts() -> list[Account]:
     accounts = []
 
@@ -72,8 +66,5 @@ def load_accounts() -> list[Account]:
     env_accounts = _load_accounts_from_env()
     if env_accounts is not None:
         accounts.extend(env_accounts)
-
-    if not accounts:
-        _write_accounts_to_file([])
 
     return accounts

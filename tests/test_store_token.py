@@ -1,4 +1,4 @@
-"""Regression tests for store/token.py — lock observable behavior before slop removal."""
+"""Regression tests for store/token.py - lock observable behavior before slop removal."""
 import json
 import os
 import tempfile
@@ -10,7 +10,6 @@ from store.token import (
     _load_accounts_from_env,
     _load_accounts_from_file,
     _parse_roster,
-    _write_accounts_to_file,
     load_accounts,
 )
 
@@ -72,10 +71,11 @@ class TestFileOperations(unittest.TestCase):
         self.tmpdir = tempfile.mkdtemp()
         self.token_file = os.path.join(self.tmpdir, "token.json")
 
-    def test_write_read_roundtrip(self):
-        accounts = [Account(bohe_session_cookies="abc"), Account(bohe_session_cookies="def")]
+    def test_read_from_file(self):
+        payload = {"accounts": [{"bohe_session_cookies": "abc"}, {"bohe_session_cookies": "def"}]}
+        with open(self.token_file, "w") as f:
+            json.dump(payload, f)
         with patch("store.token.TOKEN_FILE", self.token_file):
-            _write_accounts_to_file(accounts)
             loaded = _load_accounts_from_file()
         self.assertEqual(len(loaded), 2)
         self.assertEqual(loaded[0].bohe_session_cookies, "abc")
@@ -99,14 +99,13 @@ class TestFileOperations(unittest.TestCase):
 
 
 class TestLoadAccounts(unittest.TestCase):
-    def test_empty_scaffolds_file(self):
+    def test_empty_returns_empty_list(self):
         tmpdir = tempfile.mkdtemp()
         token_file = os.path.join(tmpdir, "token.json")
         with patch("store.token.TOKEN_FILE", token_file), patch.dict(os.environ, {}, clear=False):
             os.environ.pop("BOHE_ACCOUNTS", None)
             result = load_accounts()
         self.assertEqual(result, [])
-        self.assertTrue(os.path.exists(token_file))
 
 
 if __name__ == "__main__":
