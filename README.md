@@ -8,9 +8,8 @@
 ---
 
 > [!IMPORTANT]
-> In addition to the standard MIT license, you must also comply with the following: This project is strictly prohibited
-> from being used for any form of commercial behavior. It is strictly forbidden to integrate it into paid platforms or
-> paid automated services.
+> This project is licensed under the [**Me0wo NC Public License v1.3**](LICENSE).
+> If you are unfamiliar with the Me0wo NC Public License v1.3, please refer to [Me0wo-LICENSE](https://github.com/Sn0wo2/Me0wo-LICENSE).
 
 ---
 
